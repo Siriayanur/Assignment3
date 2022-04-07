@@ -2,8 +2,9 @@ package view
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/Siriayanur/Assignment3/model/node"
+	"github.com/Siriayanur/Assignment3/controller/node"
 )
 
 func displayMenu() {
@@ -16,12 +17,29 @@ func displayMenu() {
 	fmt.Println("6. DELETE NODE FROM TREE |")
 	fmt.Println("7. ADD NEW DEPENDENCY |")
 	fmt.Println("8. ADD NEW NODE |")
+	fmt.Println("")
 }
-func displayNodes(nodes []*node.Node) {
-	fmt.Println("Node ID | Node Name")
-	for _, currNode := range nodes {
-		fmt.Printf(" %s | %s \n", currNode.Id, currNode.Name)
-		// currNode.DisplayNode()
+func displayNodes(nodes []*node.Node, nodeID string, relation string) {
+	if len(nodes) == 0 {
+		fmt.Printf("No %s of %s\n\n", relation, nodeID)
+		return
 	}
-
+	fmt.Printf("%s of %s\n\n", relation, nodeID)
+	fmt.Println("NODE ID\tNODE NAME")
+	for _, currNode := range nodes {
+		fmt.Printf(" %s | %s \n", currNode.ID, currNode.Name)
+	}
+	fmt.Println()
+}
+func getNodeID() string {
+	var id string
+	fmt.Println("Enter ID of node : ")
+	fmt.Scanln(&id)
+	return id
+}
+func checkError(err error) {
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }

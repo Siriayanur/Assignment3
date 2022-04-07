@@ -14,6 +14,7 @@ func CreateErrorStatements() {
 	errMap["idExists"] = "cannot create node, ID already exists "
 	errMap["idNotExists"] = "node ID doesn't exist "
 	errMap["cyclicDependency"] = "cannot create the cyclic dependency between parentID and childID "
+	errMap["dependencyNotExists"] = "cannot delete, dependency doesn't exist "
 }
 
 func InvalidOperation(statement string, errKind error) error {

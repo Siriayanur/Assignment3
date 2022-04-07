@@ -2,90 +2,56 @@ package view
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/Siriayanur/Assignment3/controller/graph"
 	"github.com/Siriayanur/Assignment3/exceptions"
-	"github.com/Siriayanur/Assignment3/model/graph"
 )
 
 func RunApp() {
 	var choice int
 	exceptions.CreateErrorStatements()
+	// create graph instance.
 	g := graph.CreateGraphInstance()
-	// create graph
 	for {
 		displayMenu()
 		fmt.Scanln(&choice)
 		switch choice {
 		case 1:
-			var id string
-			fmt.Println("Enter ID of node : ")
-			fmt.Scanln(&id)
-			parents, err := g.GetParents(id)
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
-			displayNodes(parents)
+			nodeID := getNodeID()
+			parents, err := g.GetParents(nodeID)
+			checkError(err)
+			displayNodes(parents, nodeID, "PARENTS")
 		case 2:
-			var id string
-			fmt.Println("Enter ID of node : ")
-			fmt.Scanln(&id)
-			children, err := g.GetChildren(id)
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
-			displayNodes(children)
+			nodeID := getNodeID()
+			children, err := g.GetChildren(nodeID)
+			checkError(err)
+			displayNodes(children, nodeID, "CHILDREN")
 		case 3:
-			var id string
-			fmt.Println("Enter ID of node : ")
-			fmt.Scanln(&id)
-			ancestors, err := g.GetAncestors(id)
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
-			displayNodes(ancestors)
+			nodeID := getNodeID()
+			ancestors, err := g.GetAncestors(nodeID)
+			checkError(err)
+			displayNodes(ancestors, nodeID, "ANCESTORS")
 		case 4:
-			var id string
-			fmt.Println("Enter ID of node : ")
-			fmt.Scanln(&id)
-			descendents, err := g.GetDescendents(id)
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
-			displayNodes(descendents)
+			nodeID := getNodeID()
+			descendents, err := g.GetDescendents(nodeID)
+			checkError(err)
+			displayNodes(descendents, nodeID, "DESCENDENTS")
 		case 5:
 			err := g.DeleteDependency()
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
+			checkError(err)
 		case 6:
-			var id string
-			fmt.Println("Enter ID of node : ")
-			fmt.Scanln(&id)
-			err := g.DeleteNode(id)
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
+			err := g.DeleteNode(getNodeID())
+			checkError(err)
 		case 7:
 			err := g.AddDependency()
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
+			checkError(err)
 		case 8:
 			err := g.AddNode()
-			if err != nil {
-				fmt.Println(err)
-				// os.Exit(1)
-			}
-		case 9:
+			checkError(err)
+		default:
 			fmt.Println("Invalid choice")
-			// os.Exit(1)
+			os.Exit(1)
 		}
 	}
 }

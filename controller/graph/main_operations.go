@@ -3,44 +3,21 @@ package graph
 import (
 	"fmt"
 
+	"github.com/Siriayanur/Assignment3/controller/node"
 	"github.com/Siriayanur/Assignment3/exceptions"
-	"github.com/Siriayanur/Assignment3/model/node"
 )
 
 type Graph struct {
 	nodes map[string]*node.Node
 }
 
-func CreateGraphInstance() *Graph {
-	graph := Graph{}
-	graph.nodes = make(map[string]*node.Node)
-	return &graph
-}
-func (g *Graph) GetNode(parentID string) (*node.Node, error) {
-	if g.nodes[parentID] == nil {
-		return nil, exceptions.InvalidOperation("idNotExists", exceptions.ErrInvalidNode)
-	}
-	return g.nodes[parentID], nil
-}
-
-func (g *Graph) isCycleExists(childID string, parentID string) error {
-	// get all ancestors
-	parentAncestors, _ := g.GetAncestors(parentID)
-	for _, currNode := range parentAncestors {
-		if currNode.Id == childID {
-			return exceptions.InvalidOperation("cycleExists", exceptions.ErrInvalidDependency)
-		}
-	}
-	return nil
-}
-
-// Get parents
+// Get parents.
 func (g *Graph) GetParents(nodeID string) ([]*node.Node, error) {
 	currentNode, err := g.GetNode(nodeID)
 	if err != nil {
 		return nil, err
 	}
-	var parents []*node.Node
+	var parents []*node.Node = []*node.Node{}
 	// currentNode.Parents - <key,value> <ID,Node>
 	for _, parentNode := range currentNode.Parents {
 		parents = append(parents, parentNode)
@@ -48,13 +25,13 @@ func (g *Graph) GetParents(nodeID string) ([]*node.Node, error) {
 	return parents, nil
 }
 
-// Get children
+// Get children.
 func (g *Graph) GetChildren(nodeID string) ([]*node.Node, error) {
 	currentNode, err := g.GetNode(nodeID)
 	if err != nil {
 		return nil, err
 	}
-	var children []*node.Node
+	var children []*node.Node = []*node.Node{}
 	// currentNode.Children - map(<key,value>) ; map(<ID,Node>)
 	for _, childNode := range currentNode.Children {
 		children = append(children, childNode)
@@ -63,15 +40,15 @@ func (g *Graph) GetChildren(nodeID string) ([]*node.Node, error) {
 }
 
 // Get ancestors.
-func (g *Graph) getAncestorsHelper(currentNode *node.Node, visited map[string]bool, resStack *[]*node.Node) {
-	if visited[currentNode.Id] {
+func (g *Graph) getAncestorsMain(currentNode *node.Node, visited map[string]bool, resStack *[]*node.Node) {
+	if visited[currentNode.ID] {
 		return
 	}
-	visited[currentNode.Id] = true
+	visited[currentNode.ID] = true
 	*resStack = append(*resStack, currentNode)
 	for _, parent := range currentNode.Parents {
-		if !visited[parent.Id] {
-			g.getAncestorsHelper(parent, visited, resStack)
+		if !visited[parent.ID] {
+			g.getAncestorsMain(parent, visited, resStack)
 		}
 	}
 }
@@ -84,21 +61,21 @@ func (g *Graph) GetAncestors(nodeID string) ([]*node.Node, error) {
 	visited := make(map[string]bool)
 	var resStack []*node.Node
 	for _, parent := range parents {
-		g.getAncestorsHelper(parent, visited, &resStack)
+		g.getAncestorsMain(parent, visited, &resStack)
 	}
 	return resStack, nil
 }
 
-// Get descendents
-func (g *Graph) getDescendentsHelper(currentNode *node.Node, visited map[string]bool, resStack *[]*node.Node) {
-	if visited[currentNode.Id] {
+// Get descendents.
+func (g *Graph) getDescendentsMain(currentNode *node.Node, visited map[string]bool, resStack *[]*node.Node) {
+	if visited[currentNode.ID] {
 		return
 	}
-	visited[currentNode.Id] = true
+	visited[currentNode.ID] = true
 	*resStack = append(*resStack, currentNode)
 	for _, child := range currentNode.Children {
-		if !visited[child.Id] {
-			g.getDescendentsHelper(child, visited, resStack)
+		if !visited[child.ID] {
+			g.getDescendentsMain(child, visited, resStack)
 		}
 	}
 }
@@ -111,25 +88,32 @@ func (g *Graph) GetDescendents(nodeID string) ([]*node.Node, error) {
 	visited := make(map[string]bool)
 	var resStack []*node.Node
 	for _, child := range children {
-		g.getDescendentsHelper(child, visited, &resStack)
+		g.getDescendentsMain(child, visited, &resStack)
 	}
 	return resStack, nil
 }
 
 // Add Node.
-func (g *Graph) AddNode() error {
-	var nodeID, nodeName string
-	fmt.Println("Enter node id : ")
-	fmt.Scanln(&nodeID)
+func (g *Graph) addNodeMain(nodeID string, nodeName string) error {
 	// check if the nodeId is unique
 	if g.nodes[nodeID] != nil {
 		return exceptions.InvalidOperation("idExists", exceptions.ErrInvalidNode)
 	}
-	fmt.Println("Enter node name : ")
-	fmt.Scanln(&nodeName)
 	newNode := node.NewNode(nodeID, nodeName)
 	// add this newNode to the existing graph
 	g.nodes[nodeID] = newNode
+	return nil
+}
+func (g *Graph) AddNode() error {
+	var nodeID, nodeName string
+	fmt.Println("Enter node id : ")
+	fmt.Scanln(&nodeID)
+	fmt.Println("Enter node name : ")
+	fmt.Scanln(&nodeName)
+	err := g.addNodeMain(nodeID, nodeName)
+	if err != nil {
+		return err
+	}
 	fmt.Printf("Node %s added successfully\n", nodeID)
 	// add dependencies if any
 	fmt.Println("To add a dependency select y/yes")
@@ -145,12 +129,7 @@ func (g *Graph) AddNode() error {
 }
 
 // Add Dependency.
-func (g *Graph) AddDependency() error {
-	var parentID, childID string
-	fmt.Println("Enter parent ID : ")
-	fmt.Scanln(&parentID)
-	fmt.Println("Enter child ID : ")
-	fmt.Scanln(&childID)
+func (g *Graph) addDependencyMain(parentID string, childID string) error {
 	if g.nodes[parentID] == nil || g.nodes[childID] == nil {
 		return exceptions.InvalidOperation("idNotExists", exceptions.ErrInvalidNode)
 	}
@@ -170,6 +149,27 @@ func (g *Graph) AddDependency() error {
 	parentNode.Children[childID] = childNode
 	return nil
 }
+func (g *Graph) AddDependency() error {
+	var parentID, childID string
+	fmt.Println("Enter parent ID : ")
+	fmt.Scanln(&parentID)
+	fmt.Println("Enter child ID : ")
+	fmt.Scanln(&childID)
+	exists, err := g.dependencyExists(parentID, childID)
+	if err != nil {
+		return err
+	}
+	if exists {
+		fmt.Printf("Dependency already exists %s --> %s\n", parentID, childID)
+		return nil
+	}
+	err = g.addDependencyMain(parentID, childID)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Dependency added successfully %s --> %s\n", parentID, childID)
+	return nil
+}
 
 // Delete Node.
 func (g *Graph) DeleteNode(nodeID string) error {
@@ -183,23 +183,34 @@ func (g *Graph) DeleteNode(nodeID string) error {
 	children := currentNode.Children
 	// delete the concerned dependencies
 	for _, parent := range parents {
-		g.DeleteDependencyHelper(nodeID, parent.Id)
+		err := g.deleteDependencyMain(parent.ID, nodeID)
+		if err != nil {
+			return err
+		}
 	}
 	for _, child := range children {
-		g.DeleteDependencyHelper(child.Id, nodeID)
+		err := g.deleteDependencyMain(nodeID, child.ID)
+		if err != nil {
+			return err
+		}
 	}
 	// delete from graph
 	delete(g.nodes, nodeID)
+	fmt.Printf("Deleted node %s along with its dependencies\n", nodeID)
 	return nil
 }
 
 // Delete dependency.
-func (g *Graph) DeleteDependencyHelper(childID string, parentID string) error {
+func (g *Graph) deleteDependencyMain(parentID string, childID string) error {
 	if g.nodes[parentID] == nil || g.nodes[childID] == nil {
 		return exceptions.InvalidOperation("idNotExists", exceptions.ErrInvalidNode)
 	}
 	childNode, _ := g.GetNode(childID)
 	parentNode, _ := g.GetNode(parentID)
+	// check if such a dependency exists
+	if childNode.Parents[parentID] == nil {
+		return exceptions.InvalidOperation("dependencyNotExists", exceptions.ErrInvalidDependency)
+	}
 	delete(childNode.Parents, parentID)
 	delete(parentNode.Children, childID)
 	return nil
@@ -210,6 +221,10 @@ func (g *Graph) DeleteDependency() error {
 	fmt.Scanln(&parentID)
 	fmt.Println("Enter child ID : ")
 	fmt.Scanln(&childID)
-	err := g.DeleteDependencyHelper(childID, parentID)
-	return err
+	err := g.deleteDependencyMain(parentID, childID)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Deleted dependency %s --> %s \n", parentID, childID)
+	return nil
 }
