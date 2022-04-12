@@ -31,15 +31,7 @@ func (app *App) AddDependency() error {
 	fmt.Scanln(&parentID)
 	fmt.Println("Enter child ID : ")
 	fmt.Scanln(&childID)
-	exists, err := app.data.DependencyExists(parentID, childID)
-	if err != nil {
-		return err
-	}
-	if exists {
-		fmt.Printf("Dependency already exists %s --> %s\n", parentID, childID)
-		return nil
-	}
-	err = app.data.AddDependencyHelper(parentID, childID)
+	err := app.data.AddDependencyHelper(parentID, childID)
 	if err != nil {
 		return err
 	}

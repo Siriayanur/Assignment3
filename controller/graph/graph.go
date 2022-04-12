@@ -1,6 +1,8 @@
 package graph
 
 import (
+	"fmt"
+
 	"github.com/Siriayanur/Assignment3/controller/node"
 	"github.com/Siriayanur/Assignment3/exceptions"
 )
@@ -104,10 +106,19 @@ func (g *Graph) AddNodeHelper(nodeID string, nodeName string) error {
 
 // Add Dependency.
 func (g *Graph) AddDependencyHelper(parentID string, childID string) error {
+	// check if dependency already exists
+	exists, err := g.dependencyExists(parentID, childID)
+	if err != nil {
+		return err
+	}
+	if exists {
+		fmt.Printf("Dependency already exists %s --> %s\n", parentID, childID)
+		return nil
+	}
 	if g.nodes[parentID] == nil || g.nodes[childID] == nil {
 		return exceptions.InvalidOperation("idNotExists", exceptions.ErrInvalidNode)
 	}
-	err := g.IsCycleExists(childID, parentID)
+	err = g.isCycleExists(childID, parentID)
 	if err != nil {
 		return err
 	}
