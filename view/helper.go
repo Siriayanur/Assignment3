@@ -2,7 +2,6 @@ package view
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/Siriayanur/Assignment3/controller/node"
 )
@@ -40,6 +39,6 @@ func getNodeID() string {
 func checkError(err error) {
 	if err != nil {
 		fmt.Println(err)
-		os.Exit(1)
+		// os.Exit(1)
 	}
 }

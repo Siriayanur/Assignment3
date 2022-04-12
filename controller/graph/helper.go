@@ -6,7 +6,7 @@ import (
 )
 
 // used to hold all the node references.
-func CreateGraphInstance() *Graph {
+func NewGraph() *Graph {
 	graph := Graph{}
 	graph.nodes = make(map[string]*node.Node)
 	return &graph
@@ -21,7 +21,7 @@ func (g *Graph) GetNode(nodeID string) (*node.Node, error) {
 }
 
 // check if a cycle exists between parent and child node before addition of dependency.
-func (g *Graph) isCycleExists(childID string, parentID string) error {
+func (g *Graph) IsCycleExists(childID string, parentID string) error {
 	// get all ancestors of parentNode
 	parentAncestors, _ := g.GetAncestors(parentID)
 	// if child node happens to be in the list, cycle exists
@@ -34,7 +34,7 @@ func (g *Graph) isCycleExists(childID string, parentID string) error {
 }
 
 // check if a dependency already exists between parentID and childID.
-func (g *Graph) dependencyExists(parentID string, childID string) (bool, error) {
+func (g *Graph) DependencyExists(parentID string, childID string) (bool, error) {
 	childNode, err := g.GetNode(childID)
 	if err != nil {
 		return false, err
