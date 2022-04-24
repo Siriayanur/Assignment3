@@ -10,6 +10,16 @@ import (
 type Graph struct {
 	nodes map[string]*node.Node
 }
+type IGraph interface {
+	GetParents(string) ([]*node.Node, error)
+	GetChildren(string) ([]*node.Node, error)
+	GetAncestors(string) ([]*node.Node, error)
+	GetDescendents(string) ([]*node.Node, error)
+	AddNodeHelper(string, string) error
+	AddDependencyHelper(string, string) error
+	DeleteNodeHelper(string) error
+	DeleteDependencyHelper(string, string) error
+}
 
 // Get parents.
 func (g *Graph) GetParents(nodeID string) ([]*node.Node, error) {

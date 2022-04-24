@@ -9,7 +9,7 @@ import (
 )
 
 type App struct {
-	data graph.Graph
+	data graph.IGraph
 }
 
 func (app *App) DeleteDependency() error {
@@ -74,7 +74,7 @@ func RunApp() {
 	exceptions.CreateErrorStatements()
 	// create graph instance.
 	g := graph.NewGraph()
-	app := App{data: *g}
+	app := App{g}
 	for {
 		displayMenu()
 		fmt.Scanln(&choice)

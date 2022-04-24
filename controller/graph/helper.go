@@ -6,9 +6,8 @@ import (
 )
 
 // used to hold all the node references.
-func NewGraph() *Graph {
-	graph := Graph{}
-	graph.nodes = make(map[string]*node.Node)
+func NewGraph() IGraph {
+	graph := Graph{nodes: make(map[string]*node.Node)}
 	return &graph
 }
 
@@ -27,7 +26,7 @@ func (g *Graph) isCycleExists(childID string, parentID string) error {
 	// if child node happens to be in the list, cycle exists
 	for _, currNode := range parentAncestors {
 		if currNode.ID == childID {
-			return exceptions.InvalidOperation("cycleExists", exceptions.ErrInvalidDependency)
+			return exceptions.InvalidOperation("cyclicDependency", exceptions.ErrInvalidDependency)
 		}
 	}
 	return nil

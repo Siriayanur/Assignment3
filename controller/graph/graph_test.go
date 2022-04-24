@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func createTestNodes() *Graph {
+func createTestNodes() IGraph {
 	g := NewGraph()
 	_ = g.AddNodeHelper("1", "one")
 	_ = g.AddNodeHelper("2", "two")
@@ -15,7 +15,7 @@ func createTestNodes() *Graph {
 	_ = g.AddNodeHelper("5", "five")
 	return g
 }
-func createTestGraph() *Graph {
+func createTestGraph() IGraph {
 	g := NewGraph()
 	_ = g.AddNodeHelper("1", "one")
 	_ = g.AddNodeHelper("2", "two")
